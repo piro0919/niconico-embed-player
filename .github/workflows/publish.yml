@@ -1,6 +1,8 @@
 name: Publish
 
 # Publish only when a tag is pushed, after checking it matches package.json.
+# 0.1.0 was published by hand, since npm's trusted publisher settings open
+# only once a package exists.
 on:
   push:
     tags: ["v*"]
@@ -36,6 +38,14 @@ jobs:
       - run: pnpm lint
       - run: pnpm build:lib
       - run: pnpm check:package
-      - run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # Trusted publishing (OIDC): no token. npm needs 11.5.1 or later for it,
+      # and provenance is attached automatically.
+      - run: npm install -g npm@11.21.1
+      - name: Skip a version already on npm
+        id: published
+        run: |
+          if npm view "niconico-embed-player@${GITHUB_REF_NAME#v}" version | grep -q .; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.published.outputs.skip != 'true'
+        run: npm publish --access public
