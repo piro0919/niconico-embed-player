@@ -142,6 +142,40 @@ describe("createNiconicoEngine", () => {
     expect(engine.time()).toEqual({ current: 1.5, duration: 200 });
   });
 
+  it("passes the start position as from and never seeks before playing", () => {
+    engine = createNiconicoEngine(container, {
+      videoId: "sm9",
+      startAt: 61.5,
+    });
+    const { iframe, playerId } = frame();
+    expect(new URL(iframe.src).searchParams.get("from")).toBe("61");
+    const sent = record(iframe);
+    receive(playerId, "loadComplete");
+    expect(sent.map((m) => m.eventName)).not.toContain("seek");
+    // The next video starts from the beginning
+    engine.load("sm10");
+    expect(frame().iframe.src).not.toContain("from=");
+  });
+
+  it("keeps a changed volume for the next video", () => {
+    engine = createNiconicoEngine(container, { videoId: "sm9", volume: 40 });
+    engine.setVolume(70);
+    engine.load("sm10");
+    const { iframe, playerId } = frame();
+    const sent = record(iframe);
+    receive(playerId, "loadComplete");
+    expect(sent.find((m) => m.eventName === "volumeChange")?.data).toEqual({
+      volume: 0.7,
+    });
+  });
+
+  it("reports nothing while loading", () => {
+    const on = events();
+    engine = createNiconicoEngine(container, { videoId: "sm9" }, on);
+    receive(frame().playerId, "statusChange", { playerStatus: 1 });
+    for (const fn of Object.values(on)) expect(fn).not.toHaveBeenCalled();
+  });
+
   it("reports playing, paused and ended", () => {
     const on = events();
     engine = createNiconicoEngine(container, { videoId: "sm9" }, on);
@@ -193,6 +227,26 @@ describe("createNiconicoEngine", () => {
       });
       expect(on.onPaused).toHaveBeenCalledOnce();
       expect(on.onBlocked).not.toHaveBeenCalled();
+    });
+
+    it("treats the pause that follows player-error:video:play as a pause (WebKit)", () => {
+      const on = events();
+      engine = createNiconicoEngine(container, { videoId: "sm9" }, on);
+      const { playerId } = frame();
+      receive(playerId, "statusChange", { playerStatus: 2 });
+      receive(playerId, "player-error:video:play");
+      receive(playerId, "statusChange", { playerStatus: 3 });
+      expect(on.onBlocked).toHaveBeenCalledOnce();
+      expect(on.onPaused).toHaveBeenCalledOnce();
+    });
+
+    it("starts telling blocked apart again for the next video", () => {
+      const on = events();
+      engine = createNiconicoEngine(container, { videoId: "sm9" }, on);
+      receive(frame().playerId, "statusChange", { playerStatus: 3 });
+      engine.load("sm10");
+      receive(frame().playerId, "statusChange", { playerStatus: 3 });
+      expect(on.onBlocked).toHaveBeenCalledTimes(2);
     });
 
     it("can report blocked again after play() is retried", () => {
