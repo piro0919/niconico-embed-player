@@ -10,8 +10,9 @@ Agreed on 2026-10-16 in a home-window session. Public repo: https://github.com/p
 
 - `src/embed.ts` — protocol constants, `niconicoEmbedUrl`, `postCommand`, the `Preloaded` type. Shared by the player and the preloader
 - `src/player.ts` — `createNiconicoEngine(container, options, events)`, ported from Vocafy's `niconico.ts`
+- `src/pool.ts` — `createNiconicoPool(options)`, the preloader, ported from Vocafy's `niconico-pool.ts`. `Preloaded.box` is the hidden wrapper the player shows when it takes an embed over
 - `tests/` — Vitest on jsdom. The iframe's `postMessage` is spied on and the embed's replies are dispatched as `message` events
-- `src/app/[locale]/` — the site (Next.js, next-intl, English at `/`, Japanese at `/ja`). The page is a live demo: a real embed driven by the package, with an event log. Messages are in `messages/{en,ja}.json`; i18n wiring in `src/i18n/` and `src/proxy.ts` is copied from parroo's `lp/`. The site is not in the npm package (`tsconfig.build.json` builds only the three library files)
+- `src/app/[locale]/` — the site (Next.js, next-intl, English at `/`, Japanese at `/ja`). The page is a live demo: a real embed driven by the package, with an event log. Messages are in `messages/{en,ja}.json`; i18n wiring in `src/i18n/` and `src/proxy.ts` is copied from parroo's `lp/`. The site is not in the npm package (`tsconfig.build.json` builds only the four library files)
 - `e2e/` — Playwright on the built site. `demo.spec.ts` runs in Chromium and WebKit against a fake embed served at the real origin (`fake-embed.ts`, adapted from Vocafy's e2e). `real.spec.ts` (`@real`) plays sm9 on the real embed and runs only from the manual workflow `e2e-real.yml` or `pnpm test:e2e:real`
 - Commands: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `pnpm test:e2e:real`, `pnpm build:lib`, `pnpm check:package`, `pnpm dev` (port 3150). ESM only, so attw runs with `--profile esm-only`
 - Biome extends `@piro0919/biome-config` (unnamed numbers warn, Tailwind arbitrary numeric values warn). Commit messages are checked by commitlint (config-conventional) in the commit-msg hook

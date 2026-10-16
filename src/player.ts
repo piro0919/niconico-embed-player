@@ -218,6 +218,8 @@ export function createNiconicoEngine(
   if (preloaded) {
     iframe = preloaded.iframe;
     playerId = preloaded.playerId;
+    // Shown as it is: moving an iframe reloads it
+    preloaded.box.hidden = false;
     start();
   } else load(options.videoId, options.startAt);
 

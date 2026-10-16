@@ -428,14 +428,18 @@ describe("createNiconicoEngine", () => {
     expect(on.onPlaying).toHaveBeenCalledOnce();
   });
 
-  it("takes over a preloaded embed, unmutes it and plays at once", () => {
+  it("takes over a preloaded embed, shows it, unmutes it and plays at once", () => {
+    const box = document.createElement("div");
+    box.hidden = true;
     const iframe = document.createElement("iframe");
-    container.append(iframe);
+    box.append(iframe);
+    container.append(box);
     const sent = record(iframe);
-    engine = createNiconicoEngine(container, {
+    engine = createNiconicoEngine(box, {
       videoId: "sm9",
-      preloaded: { videoId: "sm9", playerId: "pre-1", iframe },
+      preloaded: { videoId: "sm9", playerId: "pre-1", iframe, box },
     });
+    expect(box.hidden).toBe(false);
     expect(container.querySelectorAll("iframe")).toHaveLength(1);
     expect(sent).toEqual([
       { eventName: "mute", data: { mute: false } },
@@ -451,7 +455,7 @@ describe("createNiconicoEngine", () => {
     record(iframe);
     engine = createNiconicoEngine(container, {
       videoId: "sm9",
-      preloaded: { videoId: "sm9", playerId: "pre-1", iframe },
+      preloaded: { videoId: "sm9", playerId: "pre-1", iframe, box: holder },
     });
     engine.load("so123");
     expect(iframe.isConnected).toBe(false);

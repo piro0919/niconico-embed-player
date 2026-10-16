@@ -5,3 +5,8 @@ export {
   type NiconicoEngineEvents,
   type NiconicoEngineOptions,
 } from "./player";
+export {
+  createNiconicoPool,
+  type NiconicoPool,
+  type NiconicoPoolOptions,
+} from "./pool";

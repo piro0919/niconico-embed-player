@@ -88,6 +88,50 @@ All are optional.
 | `onBlocked`  | The browser refused to start playback without a user gesture. Call `play()` from a tap |
 | `onError`    | The embed reported an error, with its code (`sensitive_video`, `watch_api_error`, …) |
 
+## Preloading for iPhone and iPad
+
+iPhone and iPad Safari block playback that no tap started. A player created
+after the tap waits for the embed to load, and by then the tap no longer
+counts, so the first play is blocked. `createNiconicoPool` loads the embeds of
+the videos on screen ahead of time, hidden, and warms each one up (plays it
+muted, then pauses it) so that `play` inside a tap starts at once.
+
+```ts
+import { createNiconicoEngine, createNiconicoPool } from "niconico-embed-player";
+
+const frame = document.getElementById("player")!;
+const pool = createNiconicoPool({ container: () => frame });
+
+// When a video's row comes into view; call the result when it leaves view
+const release = pool.want("sm9");
+
+// Inside the tap handler
+const preloaded = pool.take("sm9");
+const player = preloaded
+  ? createNiconicoEngine(preloaded.box, { videoId: "sm9", preloaded })
+  : createNiconicoEngine(frame, { videoId: "sm9" });
+```
+
+The pool places one hidden box per video in the container. Hand a taken
+embed's `box` to the player as its container: the player shows it as it is,
+since moving an iframe reloads it. The first embed costs about 0.7 MB and later
+ones about 0.2 MB; no video is loaded until play.
+
+| Option      | Type                                  | Description                                              |
+| ----------- | ------------------------------------- | -------------------------------------------------------- |
+| `container` | `() => HTMLElement \| null`           | Where the hidden boxes go. Nothing loads while it is null |
+| `playing`   | `() => string \| undefined`           | The video playing now, which is not preloaded            |
+| `startAt`   | `(videoId) => number \| undefined`    | Where to start each video, in seconds                    |
+| `title`     | `string`                              | Accessible name of the iframes                           |
+
+| Method           | Description                                                                 |
+| ---------------- | --------------------------------------------------------------------------- |
+| `want(videoId)`  | Start preloading. Returns a function to call when the video leaves view     |
+| `take(videoId)`  | The loaded embed, handed over, or `null` while loading or when there is none |
+| `status(videoId)` | `{ preload: "none" \| "loading" \| "ready", ms? }`, to tell why a tap was blocked |
+| `refresh()`      | Call when the playing video changes, to preload taken videos still in view  |
+| `destroy()`      | Drop every embed and stop listening                                         |
+
 ## Things the embed does that you should know
 
 - Only `jsapi`, `playerId` and `from` in the embed URL take effect.

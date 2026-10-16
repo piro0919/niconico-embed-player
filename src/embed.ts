@@ -63,4 +63,6 @@ export type Preloaded = {
   videoId: string;
   playerId: string;
   iframe: HTMLIFrameElement;
+  /** The hidden element around the iframe. Give it to the player as its container. */
+  box: HTMLElement;
 };
