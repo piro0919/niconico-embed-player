@@ -70,6 +70,11 @@ export type NiconicoEngine = {
 
 let serial = 0;
 
+/** The embed counts time in milliseconds; this package uses seconds. */
+const MS_PER_SECOND = 1000;
+/** This package takes volume as 0–100; the embed takes 0–1. */
+const VOLUME_MAX = 100;
+
 /**
  * Drives the Niconico embed player (embed.nicovideo.jp) through postMessage.
  * There is no official documentation. This follows an unofficial write-up
@@ -119,7 +124,8 @@ export function createNiconicoEngine(
     if (hideComments) {
       send("commentVisibilityChange", { commentVisibility: false });
     }
-    if (volume !== undefined) send("volumeChange", { volume: volume / 100 });
+    if (volume !== undefined)
+      send("volumeChange", { volume: volume / VOLUME_MAX });
     if (muted !== undefined) send("mute", { mute: muted });
     send("play");
   };
@@ -143,9 +149,9 @@ export function createNiconicoEngine(
       if (data?.playerStatus === STATUS.ended) events.onEnded?.();
     }
     if (eventName === "playerMetadataChange") {
-      current = (data?.currentTime ?? 0) / 1000;
+      current = (data?.currentTime ?? 0) / MS_PER_SECOND;
       if (current > 0) progressed = true;
-      duration = (data?.duration ?? 0) / 1000;
+      duration = (data?.duration ?? 0) / MS_PER_SECOND;
     }
     // The browser blocked playback that had no user gesture. The status stays
     // at loading and nothing else arrives. Sending play again from a button
@@ -204,11 +210,11 @@ export function createNiconicoEngine(
     seek: (seconds) => {
       current = seconds;
       progressed = true;
-      send("seek", { time: seconds * 1000 });
+      send("seek", { time: seconds * MS_PER_SECOND });
     },
     setVolume: (v) => {
       volume = v;
-      send("volumeChange", { volume: v / 100 });
+      send("volumeChange", { volume: v / VOLUME_MAX });
     },
     setMuted: (m) => {
       muted = m;

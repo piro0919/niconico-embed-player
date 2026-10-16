@@ -1,0 +1,15 @@
+<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fcd34d"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+  <!-- niconico: the ^ ^ eyes of a smile, with a play button for a mouth -->
+  <g fill="none" stroke="#1c1917" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M128,200 L170,152 L212,200"/>
+    <path d="M300,200 L342,152 L384,200"/>
+  </g>
+  <path d="M203,262 L203,382 L309,322 Z" fill="#1c1917" stroke="#1c1917" stroke-width="24" stroke-linejoin="round"/>
+</svg>

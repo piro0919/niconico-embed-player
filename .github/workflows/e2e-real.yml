@@ -1,0 +1,29 @@
+name: E2E against the real embed (manual)
+
+# Plays a video on the real embed.nicovideo.jp through the demo site, to notice
+# when Niconico changes the undocumented protocol. Manual, so CI never depends
+# on Niconico being up or reachable.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  e2e-real:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.28.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.3
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e:real
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results

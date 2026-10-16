@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "title": "niconico-embed-player - Control the Niconico Embed Player",
+    "description": "Control the Niconico embed player from your page: play, pause, seek, volume, and events, including playback blocked on iPhone and iPad."
+  },
+  "header": {
+    "tagline": "Control the Niconico embed player from your page",
+    "unofficial": "Unofficial. Niconico is a trademark of DWANGO Co., Ltd."
+  },
+  "language": {
+    "en": "English",
+    "ja": "日本語"
+  },
+  "demo": {
+    "videoId": "Video ID",
+    "load": "Load",
+    "play": "Play",
+    "pause": "Pause",
+    "seek": "Position",
+    "volume": "Volume",
+    "mute": "Mute",
+    "hideComments": "Hide comments",
+    "events": "Events",
+    "noEvents": "No events yet."
+  }
+}

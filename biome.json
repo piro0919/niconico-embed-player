@@ -1,5 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "extends": [
+    "@piro0919/biome-config/biome",
+    "@piro0919/biome-config/tailwind"
+  ],
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -7,7 +11,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!node_modules", "!dist"]
+    "includes": ["**", "!node_modules", "!dist", "!.next"]
   },
   "formatter": {
     "enabled": true,
@@ -17,7 +21,14 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "suspicious": {
+        "noUnknownAtRules": "off"
+      }
+    },
+    "domains": {
+      "next": "recommended",
+      "react": "recommended"
     }
   },
   "assist": {
@@ -25,6 +36,11 @@
       "source": {
         "organizeImports": "on"
       }
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
     }
   }
 }

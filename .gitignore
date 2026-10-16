@@ -2,3 +2,9 @@ node_modules
 dist
 *.tsbuildinfo
 *.tgz
+.next
+next-env.d.ts
+.vercel
+test-results
+playwright-report
+.next-e2e

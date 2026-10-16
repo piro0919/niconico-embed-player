@@ -1,6 +1,10 @@
 # pnpm 11 ignores pnpm.onlyBuiltDependencies in package.json and fails the
 # install until every package with a build script is listed here. esbuild is
-# fetched by tsup and vitest; lefthook installs the git hooks.
+# fetched by tsup and vitest; lefthook installs the git hooks. next-intl pulls
+# in @parcel/watcher and @swc/core for its message extraction, which the site
+# does not use, so their scripts stay off.
 allowBuilds:
+  "@parcel/watcher": false
+  "@swc/core": false
   esbuild: true
   lefthook: true

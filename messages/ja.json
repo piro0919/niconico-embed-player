@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "title": "niconico-embed-player - ニコニコ動画の埋め込みプレイヤーを操作する",
+    "description": "ニコニコ動画の埋め込みプレイヤーを、ページから操作する。再生・一時停止・シーク・音量と、iPhone や iPad で再生を止められたことを含むイベント。"
+  },
+  "header": {
+    "tagline": "ニコニコ動画の埋め込みプレイヤーを、ページから操作する",
+    "unofficial": "非公式です。ニコニコは株式会社ドワンゴの商標です。"
+  },
+  "language": {
+    "en": "English",
+    "ja": "日本語"
+  },
+  "demo": {
+    "videoId": "動画 ID",
+    "load": "読み込む",
+    "play": "再生",
+    "pause": "一時停止",
+    "seek": "再生位置",
+    "volume": "音量",
+    "mute": "ミュート",
+    "hideComments": "コメントを隠す",
+    "events": "イベント",
+    "noEvents": "イベントはまだありません。"
+  }
+}

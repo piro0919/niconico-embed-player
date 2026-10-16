@@ -11,7 +11,25 @@ Agreed on 2026-10-16 in a home-window session. Public repo: https://github.com/p
 - `src/embed.ts` — protocol constants, `niconicoEmbedUrl`, `postCommand`, the `Preloaded` type. Shared by the player and the preloader
 - `src/player.ts` — `createNiconicoEngine(container, options, events)`, ported from Vocafy's `niconico.ts`
 - `tests/` — Vitest on jsdom. The iframe's `postMessage` is spied on and the embed's replies are dispatched as `message` events
-- Commands: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build:lib`, `pnpm check:package`. ESM only, so attw runs with `--profile esm-only`
+- `src/app/[locale]/` — the site (Next.js, next-intl, English at `/`, Japanese at `/ja`). The page is a live demo: a real embed driven by the package, with an event log. Messages are in `messages/{en,ja}.json`; i18n wiring in `src/i18n/` and `src/proxy.ts` is copied from parroo's `lp/`. The site is not in the npm package (`tsconfig.build.json` builds only the three library files)
+- `e2e/` — Playwright on the built site. `demo.spec.ts` runs in Chromium and WebKit against a fake embed served at the real origin (`fake-embed.ts`, adapted from Vocafy's e2e). `real.spec.ts` (`@real`) plays sm9 on the real embed and runs only from the manual workflow `e2e-real.yml` or `pnpm test:e2e:real`
+- Commands: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `pnpm test:e2e:real`, `pnpm build:lib`, `pnpm check:package`, `pnpm dev` (port 3150). ESM only, so attw runs with `--profile esm-only`
+- Biome extends `@piro0919/biome-config` (unnamed numbers warn, Tailwind arbitrary numeric values warn). Commit messages are checked by commitlint (config-conventional) in the commit-msg hook
+
+## Site design
+
+Provisional, chosen by Claude on 2026-10-16; piro has the final say.
+
+- Same skeleton as amivoice-realtime's site: header (name, tagline, unofficial note, language switch), the demo, footer (`npm i`, GitHub, Buy Me a Coffee, npm, kkweb.io)
+- Dark `#0b0b0f` with zinc text, amber accent. Headings in Dela Gothic One (used by no other kkweb site), body in Geist with Noto Sans JP
+- Icon: the `^ ^` eyes of a smile (ニコニコ) with a play triangle for a mouth, on an amber rounded square (`src/app/icon.svg`). The apple icon and the OG cards reuse it
+- OG card per locale, drawn with a subset of Dela Gothic One (`assets/README.md`)
+
+## Verified on 2026-10-16 (headless Chromium, real embed)
+
+- `seek` takes milliseconds: `{ time: 100000 }` moved the video to 103.9 s, and it works outside the buffered range too
+- The real embed also sends `playerStatusChange` and `seekStatusChange`, which the player ignores, alongside `statusChange`
+- A controlled range input that is not updated on change snaps back and fires a second `seek` to the old position. Only the real embed showed it; the fake embed did not reproduce it even with metadata streaming and a delayed seek, so `real.spec.ts` is the regression test
 
 ## Why
 
