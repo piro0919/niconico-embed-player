@@ -212,10 +212,28 @@ describe("createNiconicoEngine", () => {
       const on = events();
       engine = createNiconicoEngine(container, { videoId: "sm9" }, on);
       const { playerId } = frame();
+      // The embed reports the start position first, then the moving position
+      receive(playerId, "playerMetadataChange", { currentTime: 0 });
       receive(playerId, "playerMetadataChange", { currentTime: 250 });
       receive(playerId, "statusChange", { playerStatus: 3 });
       expect(on.onPaused).toHaveBeenCalledOnce();
       expect(on.onBlocked).not.toHaveBeenCalled();
+    });
+
+    it("treats a bare pause as blocked when starting from a position", () => {
+      const on = events();
+      engine = createNiconicoEngine(
+        container,
+        { startAt: 61, videoId: "sm9" },
+        on,
+      );
+      const { playerId } = frame();
+      // Before playback starts, the embed already reports the `from` position
+      receive(playerId, "playerMetadataChange", { currentTime: 61000 });
+      receive(playerId, "playerMetadataChange", { currentTime: 61000 });
+      receive(playerId, "statusChange", { playerStatus: 3 });
+      expect(on.onBlocked).toHaveBeenCalledOnce();
+      expect(on.onPaused).not.toHaveBeenCalled();
     });
 
     it("treats a pause while seeking as a pause", () => {

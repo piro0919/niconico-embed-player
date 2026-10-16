@@ -111,6 +111,9 @@ export function createNiconicoEngine(
   let blocked = false;
   let asked = false;
   let progressed = false;
+  // The first position the embed reports, which is the start position (`from`)
+  // and arrives before playback starts (2026-10-16). Moving past it is progress.
+  let origin: number | undefined;
   let volume = options.volume;
   // A preloaded embed was muted to warm it up, so it is unmuted unless the
   // caller asked for muted.
@@ -150,7 +153,8 @@ export function createNiconicoEngine(
     }
     if (eventName === "playerMetadataChange") {
       current = (data?.currentTime ?? 0) / MS_PER_SECOND;
-      if (current > 0) progressed = true;
+      if (origin === undefined) origin = current;
+      else if (current > origin) progressed = true;
       duration = (data?.duration ?? 0) / MS_PER_SECOND;
     }
     // The browser blocked playback that had no user gesture. The status stays
@@ -173,6 +177,7 @@ export function createNiconicoEngine(
     blocked = false;
     asked = false;
     progressed = false;
+    origin = undefined;
     // Recreate the whole iframe for every video. `src` is set before the iframe
     // is placed, so the page history does not grow.
     // - Changing `src` pushes a history entry. The first Back then took the

@@ -27,6 +27,7 @@ Provisional, chosen by Claude on 2026-10-16; piro has the final say.
 
 ## Verified on 2026-10-16 (headless Chromium, real embed)
 
+- With `from=61`, the first `playerMetadataChange` reports `currentTime: 61000` while the status is still loading, before playback starts. So "the position advanced" is measured from the first reported position, not from 0; otherwise a blocked start from a position was reported as a pause
 - `seek` takes milliseconds: `{ time: 100000 }` moved the video to 103.9 s, and it works outside the buffered range too
 - The real embed also sends `playerStatusChange` and `seekStatusChange`, which the player ignores, alongside `statusChange`
 - A controlled range input that is not updated on change snaps back and fires a second `seek` to the old position. Only the real embed showed it; the fake embed did not reproduce it even with metadata streaming and a delayed seek, so `real.spec.ts` is the regression test
