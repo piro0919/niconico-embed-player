@@ -17,9 +17,12 @@
     "play": "再生",
     "pause": "一時停止",
     "seek": "再生位置",
+    "back": "{seconds}秒戻る",
+    "forward": "{seconds}秒進む",
     "volume": "音量",
     "mute": "ミュート",
     "hideComments": "コメントを隠す",
+    "fullscreen": "全画面",
     "events": "イベント",
     "noEvents": "イベントはまだありません。"
   }

@@ -15,6 +15,8 @@ const POLL_MS = 250;
 const LOG_LIMIT = 50;
 const SECONDS_PER_MINUTE = 60;
 const DEFAULT_VOLUME = 100;
+/** The skip buttons, in seconds */
+const SKIPS = [-10, 10];
 
 type Entry = { id: number; name: string; detail?: string; at: string };
 
@@ -39,9 +41,9 @@ export function Demo() {
   const [time, setTime] = useState({ current: 0, duration: 0 });
   const [log, setLog] = useState<Entry[]>([]);
 
-  // The player is created once per comment setting, since hiding comments is an
-  // option of the player. Volume and mute are read at that moment only.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: recreated only when comments change
+  // The player is created once. Later changes go through its methods, so the
+  // settings here are read at that moment only.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: created once on mount
   useEffect(() => {
     const frame = frameRef.current;
     if (!frame) return;
@@ -60,7 +62,6 @@ export function Demo() {
       {
         hideComments,
         muted,
-        startAt: playerRef.current?.time().current,
         videoId,
         volume,
       },
@@ -90,7 +91,7 @@ export function Demo() {
       clearInterval(timer);
       player.destroy();
     };
-  }, [hideComments]);
+  }, []);
 
   const load = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -119,6 +120,26 @@ export function Demo() {
           >
             {playing ? t("pause") : t("play")}
           </button>
+
+          <div className="flex gap-2">
+            {SKIPS.map((seconds) => (
+              <button
+                className="rounded-md border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300 transition-colors hover:border-zinc-500"
+                key={seconds}
+                onClick={() => {
+                  const player = playerRef.current;
+                  if (!player) return;
+                  player.seekBy(seconds);
+                  setTime(player.time());
+                }}
+                type="button"
+              >
+                {seconds < 0
+                  ? t("back", { seconds: -seconds })
+                  : t("forward", { seconds })}
+              </button>
+            ))}
+          </div>
 
           <label className="flex flex-1 items-center gap-3">
             <span className="sr-only">{t("seek")}</span>
@@ -179,11 +200,22 @@ export function Demo() {
             <input
               checked={hideComments}
               className="accent-amber-400"
-              onChange={(event) => setHideComments(event.target.checked)}
+              onChange={(event) => {
+                setHideComments(event.target.checked);
+                playerRef.current?.setCommentsHidden(event.target.checked);
+              }}
               type="checkbox"
             />
             {t("hideComments")}
           </label>
+
+          <button
+            className="rounded-md border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300 transition-colors hover:border-zinc-500"
+            onClick={() => playerRef.current?.requestFullscreen()}
+            type="button"
+          >
+            {t("fullscreen")}
+          </button>
 
           <form className="flex items-center gap-2" onSubmit={load}>
             <label className="flex items-center gap-2">

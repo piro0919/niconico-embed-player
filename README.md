@@ -61,15 +61,18 @@ the embed has loaded. Size the iframe with your own CSS.
 
 ### Methods
 
-| Method                 | Description                                                  |
-| ---------------------- | ------------------------------------------------------------ |
-| `load(videoId, from?)` | Switch to another video and play it, from `from` seconds     |
-| `play()` / `pause()`   |                                                              |
-| `seek(seconds)`        |                                                              |
-| `setVolume(volume)`    | 0–100                                                        |
-| `setMuted(muted)`      |                                                              |
-| `time()`               | `{ current, duration }` in seconds, 0 until known            |
-| `destroy()`            | Stop listening and remove the iframe                         |
+| Method                      | Description                                                                   |
+| --------------------------- | ----------------------------------------------------------------------------- |
+| `load(videoId, from?)`      | Switch to another video and play it, from `from` seconds                      |
+| `play()` / `pause()`        |                                                                               |
+| `seek(seconds)`             |                                                                               |
+| `seekBy(seconds)`           | Move from the current position, such as `10` or `-10`. Kept within the video  |
+| `setVolume(volume)`         | 0–100                                                                         |
+| `setMuted(muted)`           |                                                                               |
+| `setCommentsHidden(hidden)` | Hide or show the comments while playing, without a reload                     |
+| `requestFullscreen()`       | Full screen on the iframe. Call it from a tap or a click                      |
+| `time()`                    | `{ current, duration }` in seconds, 0 until known                             |
+| `destroy()`                 | Stop listening and remove the iframe                                          |
 
 ### Events
 
@@ -87,6 +90,13 @@ All are optional.
 
 - Only `jsapi`, `playerId` and `from` in the embed URL take effect.
   `noController`, `noHeader`, `defaultNoComment` and the like are ignored.
+- The embed has no command for full screen. It listens only for `play`, `pause`,
+  `seek`, `mute`, `volumeChange`, `commentVisibilityChange` and
+  `incrementViewCount`, so `requestFullscreen()` asks the browser to make the
+  iframe full screen instead. Not yet checked on iPhone Safari.
+- The embed remembers hidden comments in that browser, so the next embed starts
+  with them hidden too. The player therefore sends the comment setting on every
+  load, showing them as well as hiding them.
 - `load()` recreates the iframe instead of changing its `src`. Changing `src`
   pushes a browser history entry, so Back would step the embed back to the
   previous video instead of leaving the page.

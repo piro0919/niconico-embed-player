@@ -17,9 +17,12 @@
     "play": "Play",
     "pause": "Pause",
     "seek": "Position",
+    "back": "−{seconds} s",
+    "forward": "+{seconds} s",
     "volume": "Volume",
     "mute": "Mute",
     "hideComments": "Hide comments",
+    "fullscreen": "Full screen",
     "events": "Events",
     "noEvents": "No events yet."
   }

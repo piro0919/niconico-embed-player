@@ -59,9 +59,18 @@ export type NiconicoEngine = {
   pause(): void;
   /** Seconds */
   seek(seconds: number): void;
+  /** Move by `seconds` from the current position, such as 10 or -10. Kept within the video. */
+  seekBy(seconds: number): void;
   /** 0–100 */
   setVolume(volume: number): void;
   setMuted(muted: boolean): void;
+  /** Hide or show the comments while playing, without reloading the embed. */
+  setCommentsHidden(hidden: boolean): void;
+  /**
+   * Show the embed full screen. The embed has no command for it, so this asks
+   * the browser to make the iframe full screen; call it from a tap or a click.
+   */
+  requestFullscreen(): Promise<void>;
   /** Current position and length, in seconds. 0 until known. */
   time(): { current: number; duration: number };
   /** Stop listening and remove the iframe. */
@@ -83,7 +92,8 @@ const VOLUME_MAX = 100;
  *
  * - Sent: `{ eventName, data, sourceConnectorType: 1, playerId }`. `play`,
  *   `pause`, `seek` (`data.time` in ms), `volumeChange` (`data.volume` 0–1),
- *   `mute` (`data.mute`), `commentVisibilityChange` (`data.commentVisibility`)
+ *   `mute` (`data.mute`), `commentVisibilityChange` (`data.commentVisibility`,
+ *   also while playing)
  * - Received: `loadComplete` (loaded), `statusChange` (`data.playerStatus` is
  *   1 loading, 2 playing, 3 paused, 4 ended), `playerMetadataChange`
  *   (`data.currentTime` and `data.duration` in ms, about 4 times a second),
@@ -99,7 +109,8 @@ export function createNiconicoEngine(
   options: NiconicoEngineOptions,
   events: Partial<NiconicoEngineEvents> = {},
 ): NiconicoEngine {
-  const { hideComments = false, title = DEFAULT_TITLE, preloaded } = options;
+  const { title = DEFAULT_TITLE, preloaded } = options;
+  let hideComments = options.hideComments ?? false;
   let iframe: HTMLIFrameElement | null = null;
 
   let playerId = "";
@@ -124,9 +135,9 @@ export function createNiconicoEngine(
 
   // Apply the comment setting and the volume, then start playing
   const start = () => {
-    if (hideComments) {
-      send("commentVisibilityChange", { commentVisibility: false });
-    }
+    // Sent even to show them: the embed remembers hidden comments in that
+    // browser, and a later embed stayed hidden until told (2026-10-16)
+    send("commentVisibilityChange", { commentVisibility: !hideComments });
     if (volume !== undefined)
       send("volumeChange", { volume: volume / VOLUME_MAX });
     if (muted !== undefined) send("mute", { mute: muted });
@@ -201,6 +212,12 @@ export function createNiconicoEngine(
     start();
   } else load(options.videoId, options.startAt);
 
+  const seek = (seconds: number) => {
+    current = seconds;
+    progressed = true;
+    send("seek", { time: seconds * MS_PER_SECOND });
+  };
+
   return {
     load,
     play: () => {
@@ -212,10 +229,10 @@ export function createNiconicoEngine(
       asked = true;
       send("pause");
     },
-    seek: (seconds) => {
-      current = seconds;
-      progressed = true;
-      send("seek", { time: seconds * MS_PER_SECOND });
+    seek,
+    seekBy: (seconds) => {
+      const target = Math.max(current + seconds, 0);
+      seek(duration ? Math.min(target, duration) : target);
     },
     setVolume: (v) => {
       volume = v;
@@ -224,6 +241,17 @@ export function createNiconicoEngine(
     setMuted: (m) => {
       muted = m;
       send("mute", { mute: m });
+    },
+    // Takes effect mid-playback, with no reload (2026-10-16)
+    setCommentsHidden: (hidden) => {
+      hideComments = hidden;
+      send("commentVisibilityChange", { commentVisibility: !hidden });
+    },
+    requestFullscreen: async () => {
+      // The embed only listens for play, pause, seek, mute, volumeChange,
+      // commentVisibilityChange and incrementViewCount (read from its script
+      // on 2026-10-16). Full screen on the iframe kept playing (Chromium).
+      await iframe?.requestFullscreen();
     },
     time: () => ({ current, duration }),
     destroy: () => {

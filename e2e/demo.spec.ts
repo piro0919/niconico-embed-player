@@ -44,18 +44,42 @@ test("sends volume, mute and seek to the embed", async ({ page }) => {
   await expect(page.getByText("0:30 / 3:20")).toBeVisible();
 });
 
-test("hides comments before playing when asked", async ({ page }) => {
+test("hides and shows comments without reloading the embed", async ({
+  page,
+}) => {
   await useFakeEmbed(page);
   await page.goto("/");
   await expect(logged(page, "onPlaying")).toHaveCount(1);
+  const comments = async () =>
+    (await received(page)).filter((name) => name === "commentVisibilityChange")
+      .length;
+  // Sent once on load, to show them
+  await expect.poll(comments).toBe(1);
 
-  await page.getByRole("checkbox", { name: "Hide comments" }).check();
-  await expect(logged(page, "onPlaying")).toHaveCount(2);
-  const commands = await received(page);
-  expect(commands).toContain("commentVisibilityChange");
-  expect(commands.indexOf("commentVisibilityChange")).toBeLessThan(
-    commands.indexOf("play"),
-  );
+  const hide = page.getByRole("checkbox", { name: "Hide comments" });
+  await hide.check();
+  await hide.uncheck();
+  // The same embed got both changes, and it was not loaded again
+  await expect.poll(comments).toBe(3);
+  await expect(page.locator("iframe")).toHaveCount(1);
+  await expect(logged(page, "onPlaying")).toHaveCount(1);
+});
+
+test("skips 10 seconds and shows the embed full screen", async ({ page }) => {
+  await useFakeEmbed(page);
+  await page.goto("/");
+  await expect(logged(page, "onPlaying")).toHaveCount(1);
+  await expect(page.getByText("0:01 / 3:20")).toBeVisible();
+
+  await page.getByRole("button", { name: "+10 s" }).click();
+  await expect(page.getByText("0:11 / 3:20")).toBeVisible();
+  await page.getByRole("button", { name: "−10 s" }).click();
+  await expect(page.getByText("0:01 / 3:20")).toBeVisible();
+
+  await page.getByRole("button", { name: "Full screen" }).click();
+  await expect
+    .poll(() => page.evaluate(() => document.fullscreenElement?.tagName))
+    .toBe("IFRAME");
 });
 
 test("loads another video into a new iframe", async ({ page }) => {

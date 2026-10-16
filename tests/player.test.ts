@@ -86,12 +86,19 @@ describe("createNiconicoEngine", () => {
     expect(frame().iframe.title).toBe("動画");
   });
 
-  it("only plays on load when nothing else is set, leaving comments shown", () => {
+  it("shows comments explicitly and plays on load when nothing else is set", () => {
+    // The embed remembers hidden comments, so showing them is sent too
     engine = createNiconicoEngine(container, { videoId: "sm9" });
     const { iframe, playerId } = frame();
     const sent = record(iframe);
     receive(playerId, "loadComplete");
-    expect(sent).toEqual([{ eventName: "play", data: undefined }]);
+    expect(sent).toEqual([
+      {
+        eventName: "commentVisibilityChange",
+        data: { commentVisibility: true },
+      },
+      { eventName: "play", data: undefined },
+    ]);
   });
 
   it("hides comments and applies volume and mute before playing", () => {
@@ -132,6 +139,37 @@ describe("createNiconicoEngine", () => {
     ]);
   });
 
+  it("skips from the current position, kept within the video", () => {
+    engine = createNiconicoEngine(container, { videoId: "sm9" });
+    const { iframe, playerId } = frame();
+    const sent = record(iframe);
+    receive(playerId, "playerMetadataChange", {
+      currentTime: 5000,
+      duration: 100000,
+    });
+    engine.seekBy(10);
+    expect(engine.time().current).toBe(15);
+    engine.seekBy(-20);
+    engine.seek(95);
+    engine.seekBy(10);
+    expect(sent).toEqual([
+      { eventName: "seek", data: { time: 15000 } },
+      { eventName: "seek", data: { time: 0 } },
+      { eventName: "seek", data: { time: 95000 } },
+      { eventName: "seek", data: { time: 100000 } },
+    ]);
+  });
+
+  it("makes the iframe full screen, as the embed has no command for it", async () => {
+    engine = createNiconicoEngine(container, { videoId: "sm9" });
+    const { iframe } = frame();
+    const sent = record(iframe);
+    iframe.requestFullscreen = vi.fn(() => Promise.resolve());
+    await engine.requestFullscreen();
+    expect(iframe.requestFullscreen).toHaveBeenCalledOnce();
+    expect(sent).toEqual([]);
+  });
+
   it("reports time in seconds", () => {
     engine = createNiconicoEngine(container, { videoId: "sm9" });
     expect(engine.time()).toEqual({ current: 0, duration: 0 });
@@ -167,6 +205,28 @@ describe("createNiconicoEngine", () => {
     expect(sent.find((m) => m.eventName === "volumeChange")?.data).toEqual({
       volume: 0.7,
     });
+  });
+
+  it("hides comments on the playing embed and keeps them hidden for the next video", () => {
+    engine = createNiconicoEngine(container, { videoId: "sm9" });
+    const first = frame();
+    const sent = record(first.iframe);
+    engine.setCommentsHidden(true);
+    expect(sent).toEqual([
+      {
+        eventName: "commentVisibilityChange",
+        data: { commentVisibility: false },
+      },
+    ]);
+    expect(frame().iframe).toBe(first.iframe);
+
+    engine.load("sm10");
+    const { iframe, playerId } = frame();
+    const next = record(iframe);
+    receive(playerId, "loadComplete");
+    expect(
+      next.find((m) => m.eventName === "commentVisibilityChange")?.data,
+    ).toEqual({ commentVisibility: false });
   });
 
   it("reports nothing while loading", () => {
@@ -332,6 +392,10 @@ describe("createNiconicoEngine", () => {
     });
     expect(container.querySelectorAll("iframe")).toHaveLength(1);
     expect(sent).toEqual([
+      {
+        eventName: "commentVisibilityChange",
+        data: { commentVisibility: true },
+      },
       { eventName: "mute", data: { mute: false } },
       { eventName: "play", data: undefined },
     ]);
