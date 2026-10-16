@@ -265,6 +265,22 @@ describe("createNiconicoEngine", () => {
     ]);
   });
 
+  it("removes a preloaded embed held outside the container on load", () => {
+    const holder = document.createElement("div");
+    document.body.append(holder);
+    const iframe = document.createElement("iframe");
+    holder.append(iframe);
+    record(iframe);
+    engine = createNiconicoEngine(container, {
+      videoId: "sm9",
+      preloaded: { videoId: "sm9", playerId: "pre-1", iframe },
+    });
+    engine.load("so123");
+    expect(iframe.isConnected).toBe(false);
+    expect(container.querySelectorAll("iframe")).toHaveLength(1);
+    holder.remove();
+  });
+
   it("stops listening and removes the iframe on destroy", () => {
     const on = events();
     engine = createNiconicoEngine(container, { videoId: "sm9" }, on);

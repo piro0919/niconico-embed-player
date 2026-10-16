@@ -179,6 +179,8 @@ export function createNiconicoEngine(
     next.allow = "autoplay; fullscreen";
     next.title = title;
     next.src = niconicoEmbedUrl(id, playerId, from);
+    // A preloaded iframe may sit outside the container, so remove it by itself
+    iframe?.remove();
     container.replaceChildren(next);
     iframe = next;
   };
