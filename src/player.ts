@@ -23,7 +23,11 @@ export type NiconicoEngineOptions = {
   volume?: number;
   /** Left to the embed when omitted. */
   muted?: boolean;
-  /** Hide the comments. They are shown by default, as the embed itself does. */
+  /**
+   * Hide (`true`) or show (`false`) the comments. Left to the embed when
+   * omitted, which shows them unless they were hidden before in that browser:
+   * the embed remembers it.
+   */
   hideComments?: boolean;
   /** Accessible name of the iframe. Defaults to "Niconico video player". */
   title?: string;
@@ -110,7 +114,7 @@ export function createNiconicoEngine(
   events: Partial<NiconicoEngineEvents> = {},
 ): NiconicoEngine {
   const { title = DEFAULT_TITLE, preloaded } = options;
-  let hideComments = options.hideComments ?? false;
+  let hideComments = options.hideComments;
   let iframe: HTMLIFrameElement | null = null;
 
   let playerId = "";
@@ -125,6 +129,9 @@ export function createNiconicoEngine(
   // The first position the embed reports, which is the start position (`from`)
   // and arrives before playback starts (2026-10-16). Moving past it is progress.
   let origin: number | undefined;
+  // Where the video was asked to start. Until the embed reports a position, a
+  // skip counts from here.
+  let startFrom = 0;
   let volume = options.volume;
   // A preloaded embed was muted to warm it up, so it is unmuted unless the
   // caller asked for muted.
@@ -135,9 +142,10 @@ export function createNiconicoEngine(
 
   // Apply the comment setting and the volume, then start playing
   const start = () => {
-    // Sent even to show them: the embed remembers hidden comments in that
+    // Sent to show them too: the embed remembers hidden comments in that
     // browser, and a later embed stayed hidden until told (2026-10-16)
-    send("commentVisibilityChange", { commentVisibility: !hideComments });
+    if (hideComments !== undefined)
+      send("commentVisibilityChange", { commentVisibility: !hideComments });
     if (volume !== undefined)
       send("volumeChange", { volume: volume / VOLUME_MAX });
     if (muted !== undefined) send("mute", { mute: muted });
@@ -184,6 +192,7 @@ export function createNiconicoEngine(
   const load = (id: string, from?: number) => {
     playerId = `${PLAYER_ID_PREFIX}-${++serial}`;
     current = 0;
+    startFrom = from ?? 0;
     duration = 0;
     blocked = false;
     asked = false;
@@ -231,7 +240,8 @@ export function createNiconicoEngine(
     },
     seek,
     seekBy: (seconds) => {
-      const target = Math.max(current + seconds, 0);
+      const base = origin === undefined ? startFrom : current;
+      const target = Math.max(base + seconds, 0);
       seek(duration ? Math.min(target, duration) : target);
     },
     setVolume: (v) => {
@@ -251,12 +261,21 @@ export function createNiconicoEngine(
       // The embed only listens for play, pause, seek, mute, volumeChange,
       // commentVisibilityChange and incrementViewCount (read from its script
       // on 2026-10-16). Full screen on the iframe kept playing (Chromium).
-      await iframe?.requestFullscreen();
+      if (!iframe) return;
+      // Not every browser has it on an iframe (iPhone Safari, per caniuse; not
+      // checked on a device). Older Safari has only the prefixed one.
+      const frame = iframe as HTMLIFrameElement & {
+        webkitRequestFullscreen?: () => Promise<void> | void;
+      };
+      if (frame.requestFullscreen) return frame.requestFullscreen();
+      if (frame.webkitRequestFullscreen) return frame.webkitRequestFullscreen();
+      throw new Error("Full screen is not available in this browser");
     },
     time: () => ({ current, duration }),
     destroy: () => {
       window.removeEventListener("message", onMessage);
       iframe?.remove();
+      iframe = null;
     },
   };
 }

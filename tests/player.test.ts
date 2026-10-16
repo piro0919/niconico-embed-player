@@ -86,9 +86,19 @@ describe("createNiconicoEngine", () => {
     expect(frame().iframe.title).toBe("動画");
   });
 
-  it("shows comments explicitly and plays on load when nothing else is set", () => {
-    // The embed remembers hidden comments, so showing them is sent too
+  it("only plays on load when nothing else is set, leaving comments to the embed", () => {
     engine = createNiconicoEngine(container, { videoId: "sm9" });
+    const { iframe, playerId } = frame();
+    const sent = record(iframe);
+    receive(playerId, "loadComplete");
+    expect(sent).toEqual([{ eventName: "play", data: undefined }]);
+  });
+
+  it("sends showing comments too, since the embed remembers hiding them", () => {
+    engine = createNiconicoEngine(container, {
+      videoId: "sm9",
+      hideComments: false,
+    });
     const { iframe, playerId } = frame();
     const sent = record(iframe);
     receive(playerId, "loadComplete");
@@ -167,6 +177,42 @@ describe("createNiconicoEngine", () => {
     iframe.requestFullscreen = vi.fn(() => Promise.resolve());
     await engine.requestFullscreen();
     expect(iframe.requestFullscreen).toHaveBeenCalledOnce();
+    expect(sent).toEqual([]);
+  });
+
+  it("falls back to the prefixed full screen, and rejects when there is none", async () => {
+    engine = createNiconicoEngine(container, { videoId: "sm9" });
+    const iframe = frame().iframe as HTMLIFrameElement & {
+      webkitRequestFullscreen?: () => void;
+    };
+    Object.defineProperty(iframe, "requestFullscreen", { value: undefined });
+    iframe.webkitRequestFullscreen = vi.fn();
+    await engine.requestFullscreen();
+    expect(iframe.webkitRequestFullscreen).toHaveBeenCalledOnce();
+
+    iframe.webkitRequestFullscreen = undefined;
+    await expect(engine.requestFullscreen()).rejects.toThrow(
+      "Full screen is not available",
+    );
+  });
+
+  it("skips from the start position before the embed reports one", () => {
+    engine = createNiconicoEngine(container, { videoId: "sm9", startAt: 61 });
+    const sent = record(frame().iframe);
+    expect(engine.time().current).toBe(0);
+    engine.seekBy(10);
+    expect(sent).toEqual([{ eventName: "seek", data: { time: 71000 } }]);
+  });
+
+  it("does nothing with full screen or comments after destroy", async () => {
+    engine = createNiconicoEngine(container, { videoId: "sm9" });
+    const { iframe } = frame();
+    const sent = record(iframe);
+    iframe.requestFullscreen = vi.fn(() => Promise.resolve());
+    engine.destroy();
+    await engine.requestFullscreen();
+    engine.setCommentsHidden(true);
+    expect(iframe.requestFullscreen).not.toHaveBeenCalled();
     expect(sent).toEqual([]);
   });
 
@@ -392,10 +438,6 @@ describe("createNiconicoEngine", () => {
     });
     expect(container.querySelectorAll("iframe")).toHaveLength(1);
     expect(sent).toEqual([
-      {
-        eventName: "commentVisibilityChange",
-        data: { commentVisibility: true },
-      },
       { eventName: "mute", data: { mute: false } },
       { eventName: "play", data: undefined },
     ]);

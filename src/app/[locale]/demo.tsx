@@ -41,22 +41,23 @@ export function Demo() {
   const [time, setTime] = useState({ current: 0, duration: 0 });
   const [log, setLog] = useState<Entry[]>([]);
 
+  const add = (name: string, detail?: string) => {
+    serialRef.current += 1;
+    const entry = {
+      at: new Date().toLocaleTimeString(),
+      detail,
+      id: serialRef.current,
+      name,
+    };
+    setLog((previous) => [entry, ...previous].slice(0, LOG_LIMIT));
+  };
+
   // The player is created once. Later changes go through its methods, so the
   // settings here are read at that moment only.
   // biome-ignore lint/correctness/useExhaustiveDependencies: created once on mount
   useEffect(() => {
     const frame = frameRef.current;
     if (!frame) return;
-    const add = (name: string, detail?: string) => {
-      serialRef.current += 1;
-      const entry = {
-        at: new Date().toLocaleTimeString(),
-        detail,
-        id: serialRef.current,
-        name,
-      };
-      setLog((previous) => [entry, ...previous].slice(0, LOG_LIMIT));
-    };
     const player = createNiconicoEngine(
       frame,
       {
@@ -211,7 +212,13 @@ export function Demo() {
 
           <button
             className="rounded-md border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300 transition-colors hover:border-zinc-500"
-            onClick={() => playerRef.current?.requestFullscreen()}
+            onClick={() =>
+              playerRef.current
+                ?.requestFullscreen()
+                .catch((error: Error) =>
+                  add("requestFullscreen", error.message),
+                )
+            }
             type="button"
           >
             {t("fullscreen")}

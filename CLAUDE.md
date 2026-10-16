@@ -30,7 +30,7 @@ Provisional, chosen by Claude on 2026-10-16; piro has the final say.
 - With `from=61`, the first `playerMetadataChange` reports `currentTime: 61000` while the status is still loading, before playback starts. So "the position advanced" is measured from the first reported position, not from 0; otherwise a blocked start from a position was reported as a pause
 - `seek` takes milliseconds: `{ time: 100000 }` moved the video to 103.9 s, and it works outside the buffered range too
 - The real embed also sends `playerStatusChange` and `seekStatusChange`, which the player ignores, alongside `statusChange`
-- The embed remembers hidden comments in that browser: after one embed got `commentVisibility: false`, a new embed with a new `playerId` still started hidden. So the player sends `commentVisibility: true` too when comments are to be shown
+- The embed remembers hidden comments in that browser: after one embed got `commentVisibility: false`, a new embed with a new `playerId` still started hidden. So `hideComments: false` sends `commentVisibility: true`; omitted, nothing is sent and the viewer's choice in the embed stays, like `volume` and `muted`
 - `commentVisibilityChange` takes effect while playing: sent mid-playback it hid and showed the comments with the same iframe and `playerId`, and playback went on (`setCommentsHidden`)
 - The embed listens only for `play`, `pause`, `seek`, `mute`, `volumeChange`, `commentVisibilityChange` and `incrementViewCount` (read from its script, `watch_ja_*.js`). There is no full-screen command, so `requestFullscreen()` calls it on the iframe; playback went on in full screen. iPhone Safari not checked
 - A controlled range input that is not updated on change snaps back and fires a second `seek` to the old position. Only the real embed showed it; the fake embed did not reproduce it even with metadata streaming and a delayed seek, so `real.spec.ts` is the regression test
@@ -75,7 +75,7 @@ Provisional means Claude chose it when the decision was delegated; change it if 
 - Name: `niconico-embed-player` (chosen by piro, 2026-10-16). Unscoped.
 - Framework-agnostic TypeScript, ESM, zero runtime dependencies. No React wrapper in the first release.
 - Units (provisional): seconds for time and 0–100 for volume, matching the YouTube IFrame Player API, since sites using this will often drive YouTube too.
-- Comments (provisional): shown by default, as the embed itself does; an option hides them.
+- Comments (provisional): left to the embed when `hideComments` is omitted, like volume and mute; `true` hides them and `false` shows them (changed on 2026-10-16 after finding the embed remembers hidden comments).
 - README must say clearly that this relies on an undocumented protocol, when it was last verified, and cite https://zenn.dev/xpadev/articles/8f742c8f8ce3d0.
 - Tooling: copy the setup of `~/Repository/amivoice-realtime` (tsup, Vitest, Biome, lefthook, renovate.json, MIT). Tests run the player against a fake iframe and synthetic `message` events.
 - Public docs in English.

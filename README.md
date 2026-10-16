@@ -55,7 +55,7 @@ the embed has loaded. Size the iframe with your own CSS.
 | `startAt`      | `number`  | Where to start, in seconds                                                  |
 | `volume`       | `number`  | 0–100. Left to the embed when omitted                                       |
 | `muted`        | `boolean` | Left to the embed when omitted                                              |
-| `hideComments` | `boolean` | Hide the comments. Shown by default, as the embed itself does               |
+| `hideComments` | `boolean` | `true` hides the comments, `false` shows them. Left to the embed when omitted |
 | `title`        | `string`  | Accessible name of the iframe. Defaults to `Niconico video player`          |
 | `preloaded`    | `Preloaded` | An embed loaded ahead of time, taken over and played at once             |
 
@@ -93,10 +93,11 @@ All are optional.
 - The embed has no command for full screen. It listens only for `play`, `pause`,
   `seek`, `mute`, `volumeChange`, `commentVisibilityChange` and
   `incrementViewCount`, so `requestFullscreen()` asks the browser to make the
-  iframe full screen instead. Not yet checked on iPhone Safari.
+  iframe full screen instead. It rejects when the browser cannot do that for an
+  iframe. Not yet checked on iPhone Safari.
 - The embed remembers hidden comments in that browser, so the next embed starts
-  with them hidden too. The player therefore sends the comment setting on every
-  load, showing them as well as hiding them.
+  with them hidden too. Pass `hideComments: false` to show them regardless;
+  leave it out to keep what the viewer chose in the embed.
 - `load()` recreates the iframe instead of changing its `src`. Changing `src`
   pushes a browser history entry, so Back would step the embed back to the
   previous video instead of leaving the page.
