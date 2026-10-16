@@ -107,14 +107,22 @@ const release = pool.want("sm9");
 
 // Inside the tap handler
 const preloaded = pool.take("sm9");
-const player = preloaded
-  ? createNiconicoEngine(preloaded.box, { videoId: "sm9", preloaded })
-  : createNiconicoEngine(frame, { videoId: "sm9" });
+let player;
+if (preloaded) {
+  player = createNiconicoEngine(preloaded.box, { videoId: "sm9", preloaded });
+} else {
+  // A box of its own: the player replaces whatever is in its container
+  const box = document.createElement("div");
+  frame.append(box);
+  player = createNiconicoEngine(box, { videoId: "sm9" });
+}
+pool.refresh(); // whenever the playing video changes
 ```
 
 The pool places one hidden box per video in the container. Hand a taken
 embed's `box` to the player as its container: the player shows it as it is,
-since moving an iframe reloads it. The first embed costs about 0.7 MB and later
+since moving an iframe reloads it, and removes it on `destroy()`. Never give
+the pool's container itself to a player, as the player replaces its children. The first embed costs about 0.7 MB and later
 ones about 0.2 MB; no video is loaded until play.
 
 | Option      | Type                                  | Description                                              |

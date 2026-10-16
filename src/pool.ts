@@ -199,6 +199,11 @@ export function createNiconicoPool(options: NiconicoPoolOptions): NiconicoPool {
       };
     },
     refresh() {
+      // A video that started without its embed (tapped while loading) keeps
+      // no second one
+      const now = playing();
+      const current = now === undefined ? undefined : entries.get(now);
+      if (current) remove(current);
       for (const videoId of wanted.keys()) ensure(videoId);
     },
     destroy() {

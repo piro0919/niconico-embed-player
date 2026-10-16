@@ -463,6 +463,20 @@ describe("createNiconicoEngine", () => {
     holder.remove();
   });
 
+  it("removes the shown preload box on destroy", () => {
+    const box = document.createElement("div");
+    const iframe = document.createElement("iframe");
+    box.append(iframe);
+    container.append(box);
+    record(iframe);
+    engine = createNiconicoEngine(box, {
+      videoId: "sm9",
+      preloaded: { videoId: "sm9", playerId: "pre-1", iframe, box },
+    });
+    engine.destroy();
+    expect(box.isConnected).toBe(false);
+  });
+
   it("stops listening and removes the iframe on destroy", () => {
     const on = events();
     engine = createNiconicoEngine(container, { videoId: "sm9" }, on);

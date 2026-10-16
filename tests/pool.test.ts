@@ -266,6 +266,16 @@ describe("refresh", () => {
     expect(pool.take("sm1")?.playerId).toBe(playerIdOf(second));
   });
 
+  it("drops the embed of a video that started playing without it", () => {
+    pool.want("sm1");
+    const [box] = boxes();
+    // Tapped while loading: played by another player
+    playing = "sm1";
+    pool.refresh();
+    expect(box?.isConnected).toBe(false);
+    expect(pool.status("sm1")).toEqual({ preload: "none" });
+  });
+
   it("leaves out videos out of view and videos already held", () => {
     const release = pool.want("sm1");
     pool.want("sm2");

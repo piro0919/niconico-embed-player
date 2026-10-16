@@ -278,6 +278,8 @@ export function createNiconicoEngine(
       window.removeEventListener("message", onMessage);
       iframe?.remove();
       iframe = null;
+      // The pool made this box, and the player showed it
+      preloaded?.box.remove();
     },
   };
 }
