@@ -16,5 +16,5 @@
     "rootDir": "./src"
   },
   "include": ["src/index.ts", "src/embed.ts", "src/player.ts"],
-  "exclude": ["node_modules", "tests", "src/app", "src/i18n"]
+  "exclude": ["node_modules"]
 }

@@ -52,6 +52,7 @@ test("hides comments before playing when asked", async ({ page }) => {
   await page.getByRole("checkbox", { name: "Hide comments" }).check();
   await expect(logged(page, "onPlaying")).toHaveCount(2);
   const commands = await received(page);
+  expect(commands).toContain("commentVisibilityChange");
   expect(commands.indexOf("commentVisibilityChange")).toBeLessThan(
     commands.indexOf("play"),
   );
