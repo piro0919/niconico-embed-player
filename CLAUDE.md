@@ -4,7 +4,13 @@
 
 niconico-embed-player is an npm package that controls the Niconico embed player (`embed.nicovideo.jp`) from the page through its postMessage protocol: play, pause, seek, volume, mute, comment visibility, and status / time / error events. It also ships a preloader that keeps embeds warm so playback starts inside a tap on iPhone and iPad.
 
-Agreed on 2026-10-16 in a home-window session. Public repo: https://github.com/piro0919/niconico-embed-player (created 2026-10-16, baseline applied). Not yet on npm.
+Agreed on 2026-10-16 in a home-window session. Public repo: https://github.com/piro0919/niconico-embed-player (created 2026-10-16, baseline applied). 0.1.0 on npm since 2026-10-16.
+
+## Releasing
+
+- Bump `package.json`, turn `## Unreleased` in CHANGELOG into `## x.y.z - date`, commit `chore(release): x.y.z`, push the `vx.y.z` tag. `publish.yml` publishes through npm trusted publishing (OIDC, no token, provenance attached) and skips a version already on npm
+- 0.1.0 was published by hand from this Mac, because the trusted publisher settings open only once a package exists, and a publish from here becomes a staged publish that npm released a few minutes later. No `NPM_TOKEN` secret exists, on purpose: a token that bypasses 2FA was refused by the permission check, and npm stops those tokens publishing around 2027-01
+- The trusted publisher (piro0919/niconico-embed-player, `publish.yml`, npm publish allowed) was set up on 2026-10-16 and is pending validation: the first publish through it must happen before 2026-10-18 10:17 UTC, or it has to be deleted and set up again on the package's Settings page on npmjs.com (needs piro's 2FA code)
 
 ## Layout
 
