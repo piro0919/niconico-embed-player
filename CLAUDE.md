@@ -4,7 +4,7 @@
 
 niconico-embed-player is an npm package that controls the Niconico embed player (`embed.nicovideo.jp`) from the page through its postMessage protocol: play, pause, seek, volume, mute, comment visibility, and status / time / error events. It also ships a preloader that keeps embeds warm so playback starts inside a tap on iPhone and iPad.
 
-Agreed on 2026-10-16 in a home-window session. The GitHub repository does not exist yet: when the first commit is ready, create it as a public repo under piro0919 and run `~/.claude/scripts/gh-repo-baseline.sh`.
+Agreed on 2026-10-16 in a home-window session. Public repo: https://github.com/piro0919/niconico-embed-player (created 2026-10-16, baseline applied). Not yet on npm.
 
 ## Layout
 
