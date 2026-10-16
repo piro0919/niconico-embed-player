@@ -1,0 +1,59 @@
+{
+  "name": "niconico-embed-player",
+  "version": "0.1.0",
+  "description": "Unofficial controller for the Niconico embed player (embed.nicovideo.jp), with a preloader for instant playback on iPhone and iPad",
+  "type": "module",
+  "sideEffects": false,
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "niconico",
+    "nicovideo",
+    "embed",
+    "iframe",
+    "player",
+    "postmessage",
+    "video"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/piro0919/niconico-embed-player.git"
+  },
+  "funding": "https://github.com/sponsors/piro0919",
+  "bugs": {
+    "url": "https://github.com/piro0919/niconico-embed-player/issues"
+  },
+  "homepage": "https://github.com/piro0919/niconico-embed-player#readme",
+  "author": "piro0919 <piro.haniwa@gmail.com> (https://kkweb.io/)",
+  "packageManager": "pnpm@11.28.5",
+  "scripts": {
+    "build:lib": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check",
+    "format": "biome format --write",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm test && pnpm build:lib",
+    "check:package": "publint --strict && attw --pack . --profile esm-only"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@biomejs/biome": "2.5.15",
+    "jsdom": "^30.1.2",
+    "lefthook": "^2.2.2",
+    "publint": "^0.3.25",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  }
+}
