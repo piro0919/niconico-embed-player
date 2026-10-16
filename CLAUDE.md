@@ -10,7 +10,7 @@ Agreed on 2026-10-16 in a home-window session. Public repo: https://github.com/p
 
 - Bump `package.json`, turn `## Unreleased` in CHANGELOG into `## x.y.z - date`, commit `chore(release): x.y.z`, push the `vx.y.z` tag. `publish.yml` publishes through npm trusted publishing (OIDC, no token, provenance attached) and skips a version already on npm
 - 0.1.0 was published by hand from this Mac, because the trusted publisher settings open only once a package exists, and a publish from here becomes a staged publish that npm released a few minutes later. No `NPM_TOKEN` secret exists, on purpose: a token that bypasses 2FA was refused by the permission check, and npm stops those tokens publishing around 2027-01
-- The trusted publisher (piro0919/niconico-embed-player, `publish.yml`, npm publish allowed) was set up on 2026-10-16 and is pending validation: the first publish through it must happen before 2026-10-18 10:17 UTC, or it has to be deleted and set up again on the package's Settings page on npmjs.com (needs piro's 2FA code)
+- The trusted publisher (piro0919/niconico-embed-player, `publish.yml`, npm publish allowed) was set up on 2026-10-16 and validated by 0.1.1, the first release published through it (2026-10-16, provenance attached). 0.1.1 has no code changes; it was cut so the publisher became valid before its 2026-10-18 deadline
 
 ## Layout
 
