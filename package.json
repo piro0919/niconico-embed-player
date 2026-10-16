@@ -33,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/piro0919/niconico-embed-player/issues"
   },
-  "homepage": "https://github.com/piro0919/niconico-embed-player#readme",
+  "homepage": "https://niconico-embed-player.kkweb.io",
   "author": "piro0919 <piro.haniwa@gmail.com> (https://kkweb.io/)",
   "packageManager": "pnpm@11.28.5",
   "scripts": {

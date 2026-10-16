@@ -1,14 +1,16 @@
 # niconico-embed-player
 
 Control the [Niconico](https://www.nicovideo.jp/) embed player
-(`embed.nicovideo.jp`) from your page: play, pause, seek, volume, mute, comment
-visibility, and status, time and error events.
+(`embed.nicovideo.jp`) from your page: play, pause, seek, skip, volume, mute,
+comment visibility, full screen, and status, time and error events.
+
+Demo: https://niconico-embed-player.kkweb.io
 
 **This is not an official library from DWANGO Co., Ltd.** Niconico publishes no
 API for the embed player. This package speaks the undocumented postMessage
 protocol the embed uses, as described in
 [an unofficial write-up](https://zenn.dev/xpadev/articles/8f742c8f8ce3d0) and
-checked against the real player from 2026-10-08 to 2026-10-13. If Niconico
+checked against the real player from 2026-10-08 to 2026-10-16. If Niconico
 changes the protocol, the package can stop working without warning.
 
 - No runtime dependencies, no framework
