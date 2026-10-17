@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `status(videoId)` also reports `warmed`: whether the preloaded embed has
+  played muted and paused again, so a blocked tap on a loaded but cold embed
+  can be told apart.
+
 ## 0.1.1 - 2026-10-16
 
 ### Changed

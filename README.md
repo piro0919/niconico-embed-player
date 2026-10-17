@@ -136,7 +136,7 @@ ones about 0.2 MB; no video is loaded until play.
 | ---------------- | --------------------------------------------------------------------------- |
 | `want(videoId)`  | Start preloading. Returns a function to call when the video leaves view     |
 | `take(videoId)`  | The loaded embed, handed over, or `null` while loading or when there is none |
-| `status(videoId)` | `{ preload: "none" \| "loading" \| "ready", ms? }`, to tell why a tap was blocked |
+| `status(videoId)` | `{ preload: "none" \| "loading" \| "ready", ms?, warmed? }`, to tell why a tap was blocked |
 | `refresh()`      | Call when the playing video changes, to preload taken videos still in view  |
 | `destroy()`      | Drop every embed and stop listening                                         |
 

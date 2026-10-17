@@ -171,6 +171,18 @@ describe("status", () => {
     pool.take("sm1");
     expect(pool.status("sm1")).toEqual({ preload: "none" });
   });
+
+  it("tells whether the loaded embed has been warmed up", () => {
+    pool.want("sm1");
+    expect(pool.status("sm1").warmed).toBe(false);
+    const [box] = boxes();
+    if (!box) throw new Error("no box");
+    const id = playerIdOf(box);
+    loaded(id);
+    expect(pool.status("sm1").warmed).toBe(false);
+    startedPlaying(id);
+    expect(pool.status("sm1").warmed).toBe(true);
+  });
 });
 
 describe("take", () => {

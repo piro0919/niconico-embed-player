@@ -40,12 +40,14 @@ export type NiconicoPool = {
    */
   take(videoId: string): Preloaded | null;
   /**
-   * How far preloading got: none, loading or ready, and for how long, in
-   * milliseconds. Useful to tell why a tap was blocked.
+   * How far preloading got: none, loading or ready, for how long, in
+   * milliseconds, and whether the embed was warmed up (played muted and
+   * paused). Useful to tell why a tap was blocked.
    */
   status(videoId: string): {
     preload: "none" | "loading" | "ready";
     ms?: number;
+    warmed?: boolean;
   };
   /**
    * Call when the playing video changes. Videos still in view whose embed was
@@ -196,6 +198,7 @@ export function createNiconicoPool(options: NiconicoPoolOptions): NiconicoPool {
       return {
         preload: entry.ready ? "ready" : "loading",
         ms: Math.round(performance.now() - entry.since),
+        warmed: entry.warmed,
       };
     },
     refresh() {
