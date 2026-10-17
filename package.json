@@ -1,6 +1,6 @@
 {
   "name": "niconico-embed-player",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Unofficial controller for the Niconico embed player (embed.nicovideo.jp), with a preloader for instant playback on iPhone and iPad",
   "type": "module",
   "sideEffects": false,
