@@ -51,42 +51,42 @@ the embed has loaded. Size the iframe with your own CSS.
 
 ### Options
 
-| Option         | Type      | Description                                                                 |
-| -------------- | --------- | --------------------------------------------------------------------------- |
-| `videoId`      | `string`  | The first video, such as `sm9`                                              |
-| `startAt`      | `number`  | Where to start, in seconds                                                  |
-| `volume`       | `number`  | 0–100. Left to the embed when omitted                                       |
-| `muted`        | `boolean` | Left to the embed when omitted                                              |
-| `hideComments` | `boolean` | `true` hides the comments, `false` shows them. Left to the embed when omitted |
-| `title`        | `string`  | Accessible name of the iframe. Defaults to `Niconico video player`          |
-| `preloaded`    | `Preloaded` | An embed loaded ahead of time, taken over and played at once             |
+| Option         | Type        | Description                                                                   |
+| -------------- | ----------- | ----------------------------------------------------------------------------- |
+| `videoId`      | `string`    | The first video, such as `sm9`                                                |
+| `startAt`      | `number`    | Where to start, in seconds                                                    |
+| `volume`       | `number`    | 0–100. Left to the embed when omitted                                         |
+| `muted`        | `boolean`   | Left to the embed when omitted                                                |
+| `hideComments` | `boolean`   | `true` hides the comments, `false` shows them. Left to the embed when omitted |
+| `title`        | `string`    | Accessible name of the iframe. Defaults to `Niconico video player`            |
+| `preloaded`    | `Preloaded` | An embed loaded ahead of time, taken over and played at once                  |
 
 ### Methods
 
-| Method                      | Description                                                                   |
-| --------------------------- | ----------------------------------------------------------------------------- |
-| `load(videoId, from?)`      | Switch to another video and play it, from `from` seconds                      |
-| `play()` / `pause()`        |                                                                               |
-| `seek(seconds)`             |                                                                               |
-| `seekBy(seconds)`           | Move from the current position, such as `10` or `-10`. Kept within the video  |
-| `setVolume(volume)`         | 0–100                                                                         |
-| `setMuted(muted)`           |                                                                               |
-| `setCommentsHidden(hidden)` | Hide or show the comments while playing, without a reload                     |
-| `requestFullscreen()`       | Full screen on the iframe. Call it from a tap or a click                      |
-| `time()`                    | `{ current, duration }` in seconds, 0 until known                             |
-| `destroy()`                 | Stop listening and remove the iframe                                          |
+| Method                      | Description                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------- |
+| `load(videoId, from?)`      | Switch to another video and play it, from `from` seconds                     |
+| `play()` / `pause()`        |                                                                              |
+| `seek(seconds)`             |                                                                              |
+| `seekBy(seconds)`           | Move from the current position, such as `10` or `-10`. Kept within the video |
+| `setVolume(volume)`         | 0–100                                                                        |
+| `setMuted(muted)`           |                                                                              |
+| `setCommentsHidden(hidden)` | Hide or show the comments while playing, without a reload                    |
+| `requestFullscreen()`       | Full screen on the iframe. Call it from a tap or a click                     |
+| `time()`                    | `{ current, duration }` in seconds, 0 until known                            |
+| `destroy()`                 | Stop listening and remove the iframe                                         |
 
 ### Events
 
 All are optional.
 
-| Event        | When                                                                           |
-| ------------ | ------------------------------------------------------------------------------ |
-| `onPlaying`  | Playback started                                                               |
-| `onPaused`   | Playback paused                                                                |
-| `onEnded`    | The video ended                                                                |
-| `onBlocked`  | The browser refused to start playback without a user gesture. Call `play()` from a tap |
-| `onError`    | The embed reported an error, with its code (`sensitive_video`, `watch_api_error`, …) |
+| Event       | When                                                                                   |
+| ----------- | -------------------------------------------------------------------------------------- |
+| `onPlaying` | Playback started                                                                       |
+| `onPaused`  | Playback paused                                                                        |
+| `onEnded`   | The video ended                                                                        |
+| `onBlocked` | The browser refused to start playback without a user gesture. Call `play()` from a tap |
+| `onError`   | The embed reported an error, with its code (`sensitive_video`, `watch_api_error`, …)   |
 
 ## Preloading for iPhone and iPad
 
@@ -97,7 +97,10 @@ the videos on screen ahead of time, hidden, and warms each one up (plays it
 muted, then pauses it) so that `play` inside a tap starts at once.
 
 ```ts
-import { createNiconicoEngine, createNiconicoPool } from "niconico-embed-player";
+import {
+  createNiconicoEngine,
+  createNiconicoPool,
+} from "niconico-embed-player";
 
 const frame = document.getElementById("player")!;
 const pool = createNiconicoPool({ container: () => frame });
@@ -125,20 +128,20 @@ since moving an iframe reloads it, and removes it on `destroy()`. Never give
 the pool's container itself to a player, as the player replaces its children. The first embed costs about 0.7 MB and later
 ones about 0.2 MB; no video is loaded until play.
 
-| Option      | Type                                  | Description                                              |
-| ----------- | ------------------------------------- | -------------------------------------------------------- |
-| `container` | `() => HTMLElement \| null`           | Where the hidden boxes go. Nothing loads while it is null |
-| `playing`   | `() => string \| undefined`           | The video playing now, which is not preloaded            |
-| `startAt`   | `(videoId) => number \| undefined`    | Where to start each video, in seconds                    |
-| `title`     | `string`                              | Accessible name of the iframes                           |
+| Option      | Type                               | Description                                               |
+| ----------- | ---------------------------------- | --------------------------------------------------------- |
+| `container` | `() => HTMLElement \| null`        | Where the hidden boxes go. Nothing loads while it is null |
+| `playing`   | `() => string \| undefined`        | The video playing now, which is not preloaded             |
+| `startAt`   | `(videoId) => number \| undefined` | Where to start each video, in seconds                     |
+| `title`     | `string`                           | Accessible name of the iframes                            |
 
-| Method           | Description                                                                 |
-| ---------------- | --------------------------------------------------------------------------- |
-| `want(videoId)`  | Start preloading. Returns a function to call when the video leaves view     |
-| `take(videoId)`  | The loaded embed, handed over, or `null` while loading or when there is none |
+| Method            | Description                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------ |
+| `want(videoId)`   | Start preloading. Returns a function to call when the video leaves view                    |
+| `take(videoId)`   | The loaded embed, handed over, or `null` while loading or when there is none               |
 | `status(videoId)` | `{ preload: "none" \| "loading" \| "ready", ms?, warmed? }`, to tell why a tap was blocked |
-| `refresh()`      | Call when the playing video changes, to preload taken videos still in view  |
-| `destroy()`      | Drop every embed and stop listening                                         |
+| `refresh()`       | Call when the playing video changes, to preload taken videos still in view                 |
+| `destroy()`       | Drop every embed and stop listening                                                        |
 
 ## Things the embed does that you should know
 
